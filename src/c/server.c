@@ -38,10 +38,8 @@ int main(int argc, char* argv[]) {
                 strncpy(dir, file_to_find, BUFFER_SIZE - 1);
             }
         }
-    } else {
-        printf("argc is invalid: %d\n", argc);
-    }
-
+    } 
+        
     setbuf(stdout, NULL);
     printf("Logs from your program will appear here!\n");
 

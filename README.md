@@ -1,5 +1,7 @@
 # http-servers
 A repository containing HTTP 1.1 compliant servers in different programming languages.
+The `servers` folder acts as the output/target folder. Output/executables from compiled languages will end up here.
+The `src` folder will contain all the source code for each server.
 
 Every HTTP server in this repository can be tested using the Python test client.
 The following behaviors are defined for the servers, the server should accept concurrent connections and respond with:
