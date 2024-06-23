@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "ms-python.black-formatter",
+        "xaver.clang-format"
+    ]
+}
