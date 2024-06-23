@@ -1,29 +1,29 @@
-import subprocess
+# Standard Library Imports
+import argparse
+
+# Custom Library Imports
+import servers
+import tests
 
 
-def c():
-    subprocess.run(
-        [
-            "gcc",
-            "src/c/server.c",
-            "-o",
-            "servers/c_server",
-            "-lz",
-        ]
+def main(lang: str):
+    server = servers.languages[lang]()
+
+    tests.test_home()
+
+    server.terminate()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Enter an argument to run servers and tests"
     )
-    return subprocess.Popen(["./servers/c_server"])
-
-
-c_server = c()
-result = subprocess.run(["curl", "http://localhost:4221"], capture_output=True)
-
-if result.returncode == 0:
-    output = result.stdout.decode("utf-8")
-    headers = result.stdout
-    print(output)
-else:
-    print("Curl command failed!")
-    error = result.stderr.decode("utf-8")
-    print(error)
-
-c_server.terminate()
+    parser.add_argument(
+        "-l",
+        "--lang",
+        type=str,
+        help="The programming language that the server is written in.",
+        required=True,
+    )
+    args = parser.parse_args()
+    main(args.lang)
