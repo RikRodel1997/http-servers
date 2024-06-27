@@ -1,3 +1,4 @@
 servers/*
 !servers/.gitkeep
 tst*
+**/__pycache__

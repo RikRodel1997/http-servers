@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <zlib.h>
 
+#include "request.h"
+
 #define BUFFER_SIZE      8192
 #define HTTP_HEADER_SIZE 256
 
@@ -49,8 +51,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    int connection_backlog = 5;
-    if (listen(server_sock, connection_backlog) == -1) {
+    int max_conn = 5;
+    if (listen(server_sock, max_conn) == -1) {
         printf("Listen failed: %s \n", strerror(errno));
         return 1;
     }

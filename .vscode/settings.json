@@ -1,4 +1,14 @@
 {
     "editor.formatOnSave": true,
     "editor.tabSize": 4,
+    "files.associations": {
+        "compare": "cpp",
+        "concepts": "cpp",
+        "type_traits": "cpp",
+        "cmath": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "request.h": "c",
+        "check.h": "c"
+    },
 }
