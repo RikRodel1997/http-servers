@@ -1,4 +1,5 @@
 #include <check.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "../request.h"
@@ -12,9 +13,20 @@ END_TEST
 
 START_TEST(test_parse_request_invalid_method) {
     request req = parse_request("TOOLONGMETHOD /home");
-    ck_assert_str_eq(req.method, "INVALID");
+    ck_assert_str_eq(req.method, "");
     ck_assert_str_eq(req.path, "/invalid");
 }
+END_TEST
+
+START_TEST(test_valid_method_true) {
+    ck_assert_int_eq(valid_method("POST"), 1);
+    ck_assert_int_eq(valid_method("GET"), 1);
+    ck_assert_int_eq(valid_method("PUT"), 1);
+    ck_assert_int_eq(valid_method("DELETE"), 1);
+}
+END_TEST
+
+START_TEST(test_valid_method_false) { ck_assert_int_eq(valid_method("PATCH"), 0); }
 END_TEST
 
 Suite* request_suite(void) {
@@ -28,6 +40,8 @@ Suite* request_suite(void) {
 
     tcase_add_test(tc_core, test_parse_request_valid);
     tcase_add_test(tc_core, test_parse_request_invalid_method);
+    tcase_add_test(tc_core, test_valid_method_true);
+    tcase_add_test(tc_core, test_valid_method_false);
     suite_add_tcase(s, tc_core);
 
     return s;

@@ -10,5 +10,6 @@ typedef struct {
 } request;
 
 request parse_request(const char* received_request);
+int valid_method(char* method);
 
 #endif   // REQUEST_H
