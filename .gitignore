@@ -1,6 +1,6 @@
 servers/*
 !servers/.gitkeep
 tst*
-check_*
-!check_*.c
+**check_*
+**!check_*.c
 **/__pycache__

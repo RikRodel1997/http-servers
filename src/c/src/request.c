@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "request.h"
+#include "../include/request.h"
 
 request parse_request(const char* received_request) {
     request req;

@@ -7,9 +7,16 @@ import tests
 
 
 def main(lang: str):
-    server = servers.languages[lang]()
+    lang_options = servers.languages.keys()
+    if lang not in lang_options:
+        print(f"{lang} is not supported (yet) or it's defined different.")
+        print(f"Choose from {', '.join(lang_options)}")
+        return
 
-    tests.test_home()
+    server = servers.languages[lang.lower()]()
+
+    if tests.test_home():
+        print(f"Home directory for {lang} server works as expected!")
 
     server.terminate()
 

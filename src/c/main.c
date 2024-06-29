@@ -9,56 +9,37 @@
 #include <unistd.h>
 #include <zlib.h>
 
-#include "request.h"
+#include "include/request.h"
 
 #define BUFFER_SIZE      8192
+#define DIR_BUFF         256
 #define HTTP_HEADER_SIZE 256
+#define PORT             4221
+
+typedef struct sockaddr_in addr_in;
 
 char* split_and_keep_left(char* str);
 void get_dir(int argc, char* argv[], char* dir);
 int gzip(const char* input, int inputSize, char* output, int outputSize);
 void print_hex(const char* data, int length);
+addr_in create_addr_in(uint16_t port);
+struct sockaddr* to_sockaddr(addr_in* addr);
+int set_serv_settings(int server_sock, addr_in serv_addr);
 
 int main(int argc, char* argv[]) {
-    char dir[BUFFER_SIZE];
+    char dir[DIR_BUFF];
     get_dir(argc, argv, dir);
 
     setbuf(stdout, NULL);
 
-    int server_sock, client_addr_len;
-    struct sockaddr_in client_addr;
+    addr_in serv_addr = create_addr_in(PORT);
+    addr_in client_addr;
 
-    server_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_sock == -1) {
-        printf("Socket creation failed: %s...\n", strerror(errno));
-        return 1;
-    }
-
-    int reuse = 1;
-    if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
-        printf("Socket reuse option failed: %s...\n", strerror(errno));
-        return 1;
-    }
-
-    struct sockaddr_in serv_addr = {
-        .sin_family = AF_INET,
-        .sin_port = htons(4221),
-        .sin_addr = {htonl(INADDR_ANY)},
-    };
-
-    if (bind(server_sock, (struct sockaddr*) &serv_addr, sizeof(serv_addr)) == -1) {
-        printf("Bind failed: %s \n", strerror(errno));
-        return 1;
-    }
-
-    int max_conn = 5;
-    if (listen(server_sock, max_conn) == -1) {
-        printf("Listen failed: %s \n", strerror(errno));
-        return 1;
-    }
+    int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+    set_serv_settings(server_sock, serv_addr);
 
     for (;;) {
-        client_addr_len = sizeof(client_addr);
+        int client_addr_len = sizeof(client_addr);
         int accept_fd = accept(server_sock, (struct sockaddr*) &client_addr, &client_addr_len);
         if (accept_fd < 0) {
             continue;
@@ -237,6 +218,42 @@ int main(int argc, char* argv[]) {
     }
     close(server_sock);
     return 0;
+}
+
+int set_serv_settings(int server_sock, addr_in serv_addr) {
+    if (server_sock == -1) {
+        printf("Socket creation failed: %s...\n", strerror(errno));
+        return 1;
+    }
+
+    int reuse = 1;
+    if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
+        printf("Socket reuse option failed: %s...\n", strerror(errno));
+        return 1;
+    }
+
+    if (bind(server_sock, to_sockaddr(&serv_addr), sizeof(serv_addr)) == -1) {
+        printf("Bind failed: %s \n", strerror(errno));
+        return 1;
+    }
+
+    int max_conn = 5;
+    if (listen(server_sock, max_conn) == -1) {
+        printf("Listen failed: %s \n", strerror(errno));
+        return 1;
+    }
+}
+
+addr_in create_addr_in(uint16_t port) {
+    addr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    return addr;
+}
+
+struct sockaddr* to_sockaddr(addr_in* addr) {
+    return (struct sockaddr*) addr;
 }
 
 void get_dir(int argc, char* argv[], char* dir) {
