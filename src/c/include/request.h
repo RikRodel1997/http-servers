@@ -10,6 +10,7 @@ typedef struct {
 } request;
 
 request parse_request(const char* received_request);
+void get_echo_tail(const char* path, char* tail);
 int valid_method(char* method);
 
 #endif   // REQUEST_H

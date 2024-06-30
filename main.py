@@ -14,11 +14,18 @@ def main(lang: str):
         return
 
     server = servers.languages[lang.lower()]()
+    try:
+        if tests.test_home():
+            print(f"Home path for {lang} server works as expected!")
 
-    if tests.test_home():
-        print(f"Home directory for {lang} server works as expected!")
+        if tests.test_echo():
+            print(f"Echo path with random string for {lang} server works as expected!")
 
-    server.terminate()
+    except Exception as e:
+        print(f"Caught an exception while executing tests for {lang} server")
+        print(e)
+    finally:
+        server.terminate()
 
 
 if __name__ == "__main__":

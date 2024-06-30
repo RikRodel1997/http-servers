@@ -57,21 +57,21 @@ int main(int argc, char* argv[]) {
         }
         req_buff[bytes_received] = '\0';
 
-        strncpy(req_buff_copy, req_buff, BUFFER_SIZE);
-        strncpy(req_buff_copy2, req_buff, BUFFER_SIZE);
+        strncpy(req_buff_copy, req_buff, bytes_received);
+        strncpy(req_buff_copy2, req_buff, bytes_received);
 
         char res[BUFFER_SIZE + HTTP_HEADER_SIZE] = {0};
         char response_buff[BUFFER_SIZE + HTTP_HEADER_SIZE] = {0};
         char* file_response = NULL;
 
-        char* method = strtok(req_buff, " ");
-        char* path = strtok(NULL, " ");
+        request req = parse_request(req_buff);
+        char* method = req.method;
+        char* path = req.path;
+        // char* headers = req.headers; //TODO
 
         if (strncmp(path, "/echo/", 6) == 0) {
-            char* first_slash = strchr(req_buff_copy2, '/');
-            char* second_slash = strchr(first_slash + 1, '/');
-            char* left_side = split_and_keep_left(second_slash);
-            memmove(left_side, left_side + 1, strlen(left_side));
+            char echo_tail[7];   // +1 for null terminator
+            get_echo_tail(path, echo_tail);
 
             char* headers = strstr(req_buff_copy, "\n") + 1;   // Skip "\r\n\r\n"
             char* accept_encoding = NULL;
@@ -100,28 +100,26 @@ int main(int argc, char* argv[]) {
                 while (token != NULL) {
                     if (strncmp(token, "gzip", 4) == 0 || strncmp(token, "gzip, ", 5) == 0) {
                         char comp[BUFFER_SIZE];
-                        int comp_len = gzip(left_side, strlen(left_side), comp, BUFFER_SIZE);
+                        int comp_len = gzip(echo_tail, strlen(echo_tail), comp, BUFFER_SIZE);
                         printf("Compressed data length: %d\n", comp_len);
                         printf("Compressed data (hex):\n");
                         print_hex(comp, comp_len);
                         format = "HTTP/1.1 200 OK\r\nContent-Encoding: "
                                  "gzip\r\nContent-Type: "
                                  "text/plain\r\nContent-Length: %d\r\n\r\n%s";
-                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, comp_len, left_side);
+                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, comp_len, echo_tail);
                         break;
                     } else {
                         format = "HTTP/1.1 200 OK\r\nContent-Type: "
                                  "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(left_side), left_side);
+                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
                     }
                     token = strtok(NULL, s);
                 }
             } else {
-                printf("Accept-Encoding header not found\n");
-                printf("Left side: %s\n", left_side);
                 format = "HTTP/1.1 200 OK\r\nContent-Type: "
                          "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-                snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(left_side), left_side);
+                snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
             }
 
             strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);

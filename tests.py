@@ -1,10 +1,18 @@
 # Third-party Library Imports
-import requests
 from assertpy import assert_that
+
+# Custom File Imports
+from tests_utils import *
+
+BASE_URL = "http://localhost:4221"
 
 
 def test_home() -> bool:
-    response = requests.get("http://localhost:4221/")
-    assert_that(response.status_code).is_equal_to(200)
-    assert_that(response.headers).is_equal_to({})
+    response = curl_request(BASE_URL)
+    assert_that(response).is_equal_to("HTTP/1.1 200 OK")
     return True
+
+
+def test_echo() -> bool:
+    response = curl_request(f"{BASE_URL}/echo/{random_string(6)}")
+    print(response)

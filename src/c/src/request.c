@@ -29,6 +29,17 @@ request parse_request(const char* received_request) {
     return req;
 }
 
+void get_echo_tail(const char* path, char* tail) {
+    const char* prefix = "/echo/";
+    size_t prefix_len = strlen(prefix);
+
+    if (strncmp(path, prefix, prefix_len) == 0) {
+        const char* tail_start = path + prefix_len;
+        strncpy(tail, tail_start, 6);
+        tail[6] = '\0';
+    }
+}
+
 int valid_method(char* method) {
     if (strncmp(method, "GET", 3) == 0 || strncmp(method, "POST", 4) == 0 || strncmp(method, "PUT", 3) == 0 ||
         strncmp(method, "DELETE", 6) == 0) {
