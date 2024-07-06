@@ -1,5 +1,6 @@
 # Standard Library Imports
 import argparse
+import asyncio
 
 # Custom Library Imports
 import servers
@@ -14,12 +15,16 @@ def main(lang: str):
         return
 
     server = servers.languages[lang.lower()]()
+
     try:
         if tests.test_home():
             print(f"Home path for {lang} server works as expected!")
 
         if tests.test_echo():
             print(f"Echo path with random string for {lang} server works as expected!")
+
+        if asyncio.run(tests.test_async()):
+            print(f"Async test for {lang} server works as expected!")
 
     except Exception as e:
         print(f"Caught an exception while executing tests for {lang} server")

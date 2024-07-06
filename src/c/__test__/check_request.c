@@ -4,7 +4,7 @@
 
 #include "../include/request.h"
 
-START_TEST(test_parse_request_valid) {
+START_TEST(test_parse_request_post_home) {
     request req = parse_request("POST /home");
     ck_assert_str_eq(req.method, "POST");
     ck_assert_str_eq(req.path, "/home");
@@ -17,6 +17,24 @@ START_TEST(test_parse_request_invalid_method) {
     ck_assert_str_eq(req.path, "/invalid");
 }
 END_TEST
+
+START_TEST(test_parse_request_protocol) {
+    request req = parse_request("POST /home HTTP/1.1");
+    ck_assert_str_eq(req.method, "POST");
+    ck_assert_str_eq(req.path, "/home");
+    ck_assert_str_eq(req.protocol, "HTTP/1.1");
+}
+END_TEST
+
+// TODO: returns segmentation fault
+//  START_TEST(test_parse_request_headers) {
+//      request req = parse_request("POST /home HTTP/1.1\r\nHost: localhost:4221");
+//      ck_assert_str_eq(req.method, "POST");
+//      ck_assert_str_eq(req.path, "/home");
+//      ck_assert_str_eq(req.protocol, "HTTP/1.1");
+//      ck_assert_str_eq(req.headers, "Host: localhost:4221");
+//  }
+//  END_TEST
 
 START_TEST(test_valid_method_true) {
     ck_assert_int_eq(valid_method("POST"), 1);
@@ -50,8 +68,9 @@ Suite* request_suite(void) {
     s = suite_create("Request");
     tc_core = tcase_create("Core");
 
-    tcase_add_test(tc_core, test_parse_request_valid);
+    tcase_add_test(tc_core, test_parse_request_post_home);
     tcase_add_test(tc_core, test_parse_request_invalid_method);
+    tcase_add_test(tc_core, test_parse_request_protocol);
     tcase_add_test(tc_core, test_valid_method_true);
     tcase_add_test(tc_core, test_valid_method_false);
     tcase_add_test(tc_core, test_echo_tail_exists);

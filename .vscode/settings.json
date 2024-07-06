@@ -9,6 +9,7 @@
         "limits": "cpp",
         "new": "cpp",
         "request.h": "c",
-        "check.h": "c"
+        "check.h": "c",
+        "errno.h": "c"
     },
 }

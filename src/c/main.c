@@ -67,62 +67,21 @@ int main(int argc, char* argv[]) {
         request req = parse_request(req_buff);
         char* method = req.method;
         char* path = req.path;
-        // char* headers = req.headers; //TODO
+        char* headers = req.headers;
+        // char* body = req.body; //TOOD
 
         if (strncmp(path, "/echo/", 6) == 0) {
             char echo_tail[7];   // +1 for null terminator
             get_echo_tail(path, echo_tail);
-
-            char* headers = strstr(req_buff_copy, "\n") + 1;   // Skip "\r\n\r\n"
-            char* accept_encoding = NULL;
-            char* header_line = strtok(headers, "\r\n");
-            char* format = NULL;
-
-            while (header_line != NULL) {
-                size_t header_len = strlen("Accept-Encoding:");
-                if (strncasecmp(header_line, "Accept-Encoding:", header_len) == 0) {
-                    printf("Found header: %s\n", header_line);
-                    accept_encoding = header_line + header_len;
-                    while (*accept_encoding == ' ') {
-                        accept_encoding++;
-                    }
-                    break;
-                }
-                header_line = strtok(NULL, "\r\n");
+            if (strncasecmp(headers, "Accept-Encoding:", strlen("Accept-Encoding:")) == 0) {
+                // TODO: Implement encoding
             }
 
-            if (accept_encoding != NULL) {
-                printf("Accept-Encoding has value: %s\n", accept_encoding);
-                char* token;
-                const char s[2] = " ";
-                token = strtok(accept_encoding, s);
-
-                while (token != NULL) {
-                    if (strncmp(token, "gzip", 4) == 0 || strncmp(token, "gzip, ", 5) == 0) {
-                        char comp[BUFFER_SIZE];
-                        int comp_len = gzip(echo_tail, strlen(echo_tail), comp, BUFFER_SIZE);
-                        printf("Compressed data length: %d\n", comp_len);
-                        printf("Compressed data (hex):\n");
-                        print_hex(comp, comp_len);
-                        format = "HTTP/1.1 200 OK\r\nContent-Encoding: "
-                                 "gzip\r\nContent-Type: "
-                                 "text/plain\r\nContent-Length: %d\r\n\r\n%s";
-                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, comp_len, echo_tail);
-                        break;
-                    } else {
-                        format = "HTTP/1.1 200 OK\r\nContent-Type: "
-                                 "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-                        snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
-                    }
-                    token = strtok(NULL, s);
-                }
-            } else {
-                format = "HTTP/1.1 200 OK\r\nContent-Type: "
-                         "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-                snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
-            }
-
+            char* format = "HTTP/1.1 200 OK\r\nContent-Type: "
+                           "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
+            snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
             strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);
+
         } else if (strncmp(path, "/user-agent", 11) == 0) {
             char string1[100], string2[100], string3[100], string4[100], string5[100], string6[100], string7[100],
                 string8[100], string9[100];

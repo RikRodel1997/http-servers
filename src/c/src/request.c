@@ -4,28 +4,50 @@
 
 #include "../include/request.h"
 
-request parse_request(const char* received_request) {
+request parse_request(char* received_request) {
     request req;
     char method[METHOD_LENGTH];
     char path[PATH_LENGTH];
+    char protocol[PROTOCOL_LENGTH];
+    char headers[HEADER_LENGTH];
 
-    int ret = sscanf(received_request, "%6s %255s", method, path);
-    int method_valid = valid_method(method);
+    char* token;
+    int iteration = 0;
 
-    if (ret != 2 || method_valid == 0) {
-        // invalid the whole request if something went wrong with checking lengths
-        strncpy(req.method, "", METHOD_LENGTH - 1);
-        req.method[METHOD_LENGTH - 1] = '\0';
-        strncpy(req.path, "/invalid", PATH_LENGTH - 1);
-        req.path[PATH_LENGTH - 1] = '\0';
-        return req;
+    token = strtok(received_request, "\r\n");
+
+    while (token != NULL) {
+        iteration++;
+
+        if (iteration == 1) {
+            sscanf(token, "%6s %255s %9s", method, path, protocol);
+            int method_valid = valid_method(method);
+
+            strncpy(req.protocol, protocol, PROTOCOL_LENGTH - 1);
+            req.protocol[PROTOCOL_LENGTH - 1] = '\0';
+
+            if (method_valid == 0) {
+                // invalid the whole request if checks fail
+                strncpy(req.method, "", METHOD_LENGTH - 1);
+                req.method[METHOD_LENGTH - 1] = '\0';
+                strncpy(req.path, "/invalid", PATH_LENGTH - 1);
+                req.path[PATH_LENGTH - 1] = '\0';
+            } else {
+                // return a valid request if everything went well with checking lengths
+                strncpy(req.method, method, METHOD_LENGTH - 1);
+                req.method[METHOD_LENGTH - 1] = '\0';
+                strncpy(req.path, path, PATH_LENGTH - 1);
+                req.path[PATH_LENGTH - 1] = '\0';
+            }
+        } else {
+            strcat(headers, token);
+            strcat(headers, " ");
+        }
+        token = strtok(NULL, "\r\n");
     }
 
-    // return a valid request if everything went well with checking lengths
-    strncpy(req.method, method, METHOD_LENGTH - 1);
-    req.method[METHOD_LENGTH - 1] = '\0';
-    strncpy(req.path, path, PATH_LENGTH - 1);
-    req.path[PATH_LENGTH - 1] = '\0';
+    strncpy(req.headers, headers, HEADER_LENGTH - 1);
+    req.headers[HEADER_LENGTH - 1] = '\0';
     return req;
 }
 
