@@ -10,6 +10,7 @@ request parse_request(char* received_request) {
     char path[PATH_LENGTH];
     char protocol[PROTOCOL_LENGTH];
     char headers[HEADER_LENGTH];
+    headers[0] = '\0';
 
     char* token;
     int iteration = 0;

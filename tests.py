@@ -32,10 +32,21 @@ def test_echo() -> bool:
     return True
 
 
-def test_headers() -> bool:
-    response = curl_request(BASE_URL)
+def test_unknown() -> bool:
+    string_data = random_string(6)
+    response = curl_request(f"{BASE_URL}/{string_data}")
 
-    assert_that(response).is_equal_to("HTTP/1.1 200 OK")
+    assert_that(response).is_equal_to("HTTP/1.1 404 Not Found")
+
+    return True
+
+
+def test_user_agent() -> bool:
+    response = curl_request(f"{BASE_URL}/user-agent")
+
+    assert_that(response).contains("Content-Length: 11\n\ncurl/7.81.0")
+
+    return True
 
 
 async def test_async() -> bool:

@@ -68,33 +68,35 @@ int main(int argc, char* argv[]) {
         char* method = req.method;
         char* path = req.path;
         char* headers = req.headers;
-        // char* body = req.body; //TOOD
+        // char* body = req.body; //TODO
 
-        if (strncmp(path, "/echo/", 6) == 0) {
+        if (strcmp(path, "/") == 0) {
+            strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
+
+        } else if (strncmp(path, "/user-agent", 11) == 0) {
+            char* token;
+            char* ua_target[50];
+
+            token = strtok(req.headers, " ");
+            int i = 0;
+
+            printf("%s\n", req.headers);
+
+            char* format = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
+            snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(req.headers), req.headers);
+            strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);
+
+        } else if (strncmp(path, "/echo/", 6) == 0) {
             char echo_tail[7];   // +1 for null terminator
             get_echo_tail(path, echo_tail);
             if (strncasecmp(headers, "Accept-Encoding:", strlen("Accept-Encoding:")) == 0) {
                 // TODO: Implement encoding
             }
 
-            char* format = "HTTP/1.1 200 OK\r\nContent-Type: "
-                           "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
+            char* format = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
             snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(echo_tail), echo_tail);
             strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);
 
-        } else if (strncmp(path, "/user-agent", 11) == 0) {
-            char string1[100], string2[100], string3[100], string4[100], string5[100], string6[100], string7[100],
-                string8[100], string9[100];
-
-            sscanf(req_buff_copy, "%s %s %s %s %s %s %s %s %s", string1, string2, string3, string4, string5, string6,
-                   string7, string8, string9);
-
-            char* format = "HTTP/1.1 200 OK\r\nContent-Type: "
-                           "text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-            snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(string7), string7);
-            strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);
-        } else if (strcmp(path, "/") == 0) {
-            strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
         } else if (strncmp(path, "/files", 6) == 0 && strcmp(method, "GET") == 0) {
             char* file = strchr(path + 1, '/');
             if (file != NULL) {
@@ -140,6 +142,7 @@ int main(int argc, char* argv[]) {
                 printf("File path is invalid\n");
                 strncpy(res, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
             }
+
         } else if (strncmp(path, "/files", 6) == 0 && strcmp(method, "POST") == 0) {
             char* file_name = path + 7;
             char file_path[BUFFER_SIZE];
@@ -159,7 +162,6 @@ int main(int argc, char* argv[]) {
                 strncpy(res, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
             }
         } else {
-            printf("Path %s is unknown\n", path);
             strncpy(res, "HTTP/1.1 404 Not Found\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
         }
 
@@ -228,39 +230,4 @@ void get_dir(int argc, char* argv[], char* dir) {
             }
         }
     }
-}
-
-char* split_and_keep_left(char* str) {
-    char* pos = strchr(str, ' ');
-    if (pos != NULL) {
-        *pos = '\0';
-    }
-    return str;
-}
-
-int gzip(const char* input, int inputSize, char* output, int outputSize) {
-    z_stream zs = {0};
-    zs.zalloc = Z_NULL;
-    zs.zfree = Z_NULL;
-    zs.opaque = Z_NULL;
-
-    zs.avail_in = (uInt) inputSize;
-    zs.next_in = (Bytef*) input;
-    zs.avail_out = (uInt) outputSize;
-    zs.next_out = (Bytef*) output;
-
-    deflateInit2(&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, 15 | 16, 8, Z_DEFAULT_STRATEGY);
-    deflate(&zs, Z_FINISH);
-    deflateEnd(&zs);
-    return zs.total_out;
-}
-
-void print_hex(const char* data, int length) {
-    for (int i = 0; i < length; i++) {
-        printf("%02x ", (unsigned char) data[i]);
-        if ((i + 1) % 16 == 0) {
-            printf("\n");
-        }
-    }
-    printf("\n");
 }

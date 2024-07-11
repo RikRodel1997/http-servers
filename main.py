@@ -18,13 +18,19 @@ def main(lang: str):
 
     try:
         if tests.test_home():
-            print(f"Home path for {lang} server works as expected!")
+            print(f"/ path for {lang} server verified!")
 
         if tests.test_echo():
-            print(f"Echo path with random string for {lang} server works as expected!")
+            print(f"/echo with random string for {lang} server verified!")
+
+        if tests.test_unknown():
+            print(f"Unknown path handling for {lang} server verified!")
+
+        if tests.test_user_agent():
+            print(f"/user-agent handling for {lang} server verified!")
 
         if asyncio.run(tests.test_async()):
-            print(f"Async test for {lang} server works as expected!")
+            print(f"Async test for {lang} server verified!")
 
     except Exception as e:
         print(f"Caught an exception while executing tests for {lang} server")
