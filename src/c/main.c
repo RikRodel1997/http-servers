@@ -74,16 +74,10 @@ int main(int argc, char* argv[]) {
             strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
 
         } else if (strncmp(path, "/user-agent", 11) == 0) {
-            char* token;
-            char* ua_target[50];
-
-            token = strtok(req.headers, " ");
-            int i = 0;
-
-            printf("%s\n", req.headers);
-
+            char* user_agent[50];
+            parse_user_agent(req.headers, user_agent);
             char* format = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
-            snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(req.headers), req.headers);
+            snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(user_agent), user_agent);
             strncpy(res, response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE);
 
         } else if (strncmp(path, "/echo/", 6) == 0) {

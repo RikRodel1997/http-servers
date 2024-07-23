@@ -70,3 +70,21 @@ int valid_method(char* method) {
     }
     return 0;
 }
+
+void parse_user_agent(char* headers, char* user_agent) {
+    char* token;
+    char* target = NULL;
+
+    token = strtok(headers, " ");
+
+    while (token != NULL) {
+        token = strtok(NULL, " ");
+        if (strncmp(token, "User-Agent:", 11) == 0) {
+            target = token + 12;
+            char* space = strstr(target, " ");
+            size_t len = space - target;
+            strncpy(user_agent, target, len);
+            break;
+        }
+    }
+}

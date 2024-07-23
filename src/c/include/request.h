@@ -16,5 +16,6 @@ typedef struct {
 request parse_request(char* received_request);
 void get_echo_tail(const char* path, char* tail);
 int valid_method(char* method);
+void parse_user_agent(char* headers, char* user_agent);
 
 #endif   // REQUEST_H

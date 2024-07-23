@@ -1,5 +1,5 @@
 servers/*
-!servers/.gitkeep
+!servers/*.md
 tst*
 **check_*
 **!check_*.c

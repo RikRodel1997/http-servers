@@ -10,6 +10,7 @@
         "new": "cpp",
         "request.h": "c",
         "check.h": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "functional": "c"
     },
 }
