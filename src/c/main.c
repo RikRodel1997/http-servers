@@ -70,11 +70,12 @@ int main(int argc, char* argv[]) {
         char* headers = req.headers;
         // char* body = req.body; //TODO
 
+        // printf("headers: %s\n", req.headers);
         if (strcmp(path, "/") == 0) {
             strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
 
         } else if (strncmp(path, "/user-agent", 11) == 0) {
-            char* user_agent[50];
+            char user_agent[50];
             parse_user_agent(req.headers, user_agent);
             char* format = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s\n";
             snprintf(response_buff, BUFFER_SIZE + HTTP_HEADER_SIZE, format, strlen(user_agent), user_agent);

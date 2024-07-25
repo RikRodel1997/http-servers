@@ -84,6 +84,7 @@ void parse_user_agent(char* headers, char* user_agent) {
             char* space = strstr(target, " ");
             size_t len = space - target;
             strncpy(user_agent, target, len);
+            user_agent[len] = '\0';
             break;
         }
     }

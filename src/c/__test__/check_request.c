@@ -44,6 +44,33 @@ START_TEST(test_valid_method_true) {
 }
 END_TEST
 
+START_TEST(test_curl_user_agent) {
+    char headers[] = "Host: localhost:4221 User-Agent: curl/7.81.0 Accept: */*";
+    char curl_ua[50];
+    parse_user_agent(headers, curl_ua);
+    ck_assert_str_eq(curl_ua, "curl/7.81.0");
+    ck_assert_int_eq(strlen(curl_ua), 11);
+}
+END_TEST
+
+START_TEST(test_python_user_agent) {
+    char headers[] = "Host: localhost:4221 Accept: */* User-Agent: Python/3.10 aiohttp/3.9.5";
+    char curl_ua[50];
+    parse_user_agent(headers, curl_ua);
+    ck_assert_str_eq(curl_ua, "Python/3.10");
+    ck_assert_int_eq(strlen(curl_ua), 11);
+}
+END_TEST
+
+START_TEST(test_no_user_agent) {
+    char headers[] = "Host: localhost:4221 Accept: */*";
+    char curl_ua[50];
+    parse_user_agent(headers, curl_ua);
+    ck_assert_str_eq(curl_ua, "");
+    ck_assert_int_eq(strlen(curl_ua), 0);
+}
+END_TEST
+
 START_TEST(test_valid_method_false) { ck_assert_int_eq(valid_method("PATCH"), 0); }
 END_TEST
 
@@ -75,6 +102,10 @@ Suite* request_suite(void) {
     tcase_add_test(tc_core, test_valid_method_false);
     tcase_add_test(tc_core, test_echo_tail_exists);
     tcase_add_test(tc_core, test_echo_tail_doesnt_exists);
+    tcase_add_test(tc_core, test_curl_user_agent);
+    tcase_add_test(tc_core, test_python_user_agent);
+    tcase_add_test(tc_core, test_no_user_agent);
+
     suite_add_tcase(s, tc_core);
 
     return s;
