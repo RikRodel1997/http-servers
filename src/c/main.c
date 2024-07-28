@@ -1,30 +1,17 @@
-#include <errno.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <unistd.h>
 #include <zlib.h>
 
-#include "include/request.h"
+#include "request.h"
+#include "serv_settings.h"
 
 #define BUFFER_SIZE      8192
 #define DIR_BUFF         256
 #define HTTP_HEADER_SIZE 256
-#define PORT             4221
 
-typedef struct sockaddr_in addr_in;
-
-char* split_and_keep_left(char* str);
 void get_dir(int argc, char* argv[], char* dir);
-int gzip(const char* input, int inputSize, char* output, int outputSize);
-void print_hex(const char* data, int length);
-addr_in create_addr_in(uint16_t port);
-struct sockaddr* to_sockaddr(addr_in* addr);
-int set_serv_settings(int server_sock, addr_in serv_addr);
 
 int main(int argc, char* argv[]) {
     char dir[DIR_BUFF];
@@ -32,14 +19,16 @@ int main(int argc, char* argv[]) {
 
     setbuf(stdout, NULL);
 
-    addr_in serv_addr = create_addr_in(PORT);
     addr_in client_addr;
+    int client_addr_len = sizeof(client_addr);
 
     int server_sock = socket(AF_INET, SOCK_STREAM, 0);
-    set_serv_settings(server_sock, serv_addr);
+    if (set_serv_settings(server_sock) != 0) {
+        printf("Was unable to create server.\n");
+        exit(1);
+    }
 
-    for (;;) {
-        int client_addr_len = sizeof(client_addr);
+    while (true) {
         int accept_fd = accept(server_sock, (struct sockaddr*) &client_addr, &client_addr_len);
         if (accept_fd < 0) {
             continue;
@@ -70,7 +59,6 @@ int main(int argc, char* argv[]) {
         char* headers = req.headers;
         // char* body = req.body; //TODO
 
-        // printf("headers: %s\n", req.headers);
         if (strcmp(path, "/") == 0) {
             strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
 
@@ -134,8 +122,8 @@ int main(int argc, char* argv[]) {
                     strncpy(res, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
                 }
             } else {
-                printf("File path is invalid\n");
-                strncpy(res, "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
+                char* format = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
+                strncpy(res, format, BUFFER_SIZE + HTTP_HEADER_SIZE);
             }
 
         } else if (strncmp(path, "/files", 6) == 0 && strcmp(method, "POST") == 0) {
@@ -157,57 +145,21 @@ int main(int argc, char* argv[]) {
                 strncpy(res, "HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
             }
         } else {
-            strncpy(res, "HTTP/1.1 404 Not Found\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
+            char* format = "HTTP/1.1 404 Not Found\r\n\r\n";
+            strncpy(res, format, BUFFER_SIZE + HTTP_HEADER_SIZE);
         }
 
-        int res_len = strlen(res);
-        long bytes_sent = send(accept_fd, res, res_len, 0);
-
+        long bytes_sent = send(accept_fd, res, strlen(res), 0);
         if (bytes_sent <= 0) {
             perror("Failed to send response");
             close(accept_fd);
             return 1;
         }
+
         close(accept_fd);
     }
     close(server_sock);
     return 0;
-}
-
-int set_serv_settings(int server_sock, addr_in serv_addr) {
-    if (server_sock == -1) {
-        printf("Socket creation failed: %s...\n", strerror(errno));
-        return 1;
-    }
-
-    int reuse = 1;
-    if (setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) == -1) {
-        printf("Socket reuse option failed: %s...\n", strerror(errno));
-        return 1;
-    }
-
-    if (bind(server_sock, to_sockaddr(&serv_addr), sizeof(serv_addr)) == -1) {
-        printf("Bind failed: %s \n", strerror(errno));
-        return 1;
-    }
-
-    int max_conn = 5;
-    if (listen(server_sock, max_conn) == -1) {
-        printf("Listen failed: %s \n", strerror(errno));
-        return 1;
-    }
-}
-
-addr_in create_addr_in(uint16_t port) {
-    addr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    return addr;
-}
-
-struct sockaddr* to_sockaddr(addr_in* addr) {
-    return (struct sockaddr*) addr;
 }
 
 void get_dir(int argc, char* argv[], char* dir) {
@@ -216,6 +168,10 @@ void get_dir(int argc, char* argv[], char* dir) {
         if (strncmp(argv[1], find_arg, strlen(find_arg)) == 0) {
             printf("--directory argument passed: %s.\n", argv[2]);
             char* file_to_find = argv[2];
+            if (strlen(file_to_find) > DIR_BUFF) {
+                printf("Server stopped due to requested file being too large");
+                exit(1);
+            }
             if (access(file_to_find, F_OK) == 0) {
                 printf("%s does exist\n", file_to_find);
                 strcpy(dir, file_to_find);

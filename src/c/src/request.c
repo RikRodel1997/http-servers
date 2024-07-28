@@ -1,8 +1,4 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "../include/request.h"
+#include "../request.h"
 
 request parse_request(char* received_request) {
     request req;

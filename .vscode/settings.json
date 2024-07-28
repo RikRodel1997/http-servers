@@ -11,6 +11,7 @@
         "request.h": "c",
         "check.h": "c",
         "errno.h": "c",
-        "functional": "c"
+        "functional": "c",
+        "serv_settings.h": "c"
     },
 }

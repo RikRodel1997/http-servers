@@ -1,6 +1,5 @@
 servers/*
 !servers/*.md
 tst*
-**check_*
-**!check_*.c
+**check_tests*
 **/__pycache__

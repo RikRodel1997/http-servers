@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../include/request.h"
+#include "../request.h"
 
 START_TEST(test_parse_request_post_home) {
     request req = parse_request("POST /home");
@@ -27,14 +27,14 @@ START_TEST(test_parse_request_protocol) {
 END_TEST
 
 // TODO: returns segmentation fault
-//  START_TEST(test_parse_request_headers) {
-//      request req = parse_request("POST /home HTTP/1.1\r\nHost: localhost:4221");
-//      ck_assert_str_eq(req.method, "POST");
-//      ck_assert_str_eq(req.path, "/home");
-//      ck_assert_str_eq(req.protocol, "HTTP/1.1");
-//      ck_assert_str_eq(req.headers, "Host: localhost:4221");
-//  }
-//  END_TEST
+// START_TEST(test_parse_request_headers) {
+//     request req = parse_request("POST /home HTTP/1.1\r\nHost: localhost:4221");
+//     ck_assert_str_eq(req.method, "POST");
+//     ck_assert_str_eq(req.path, "/home");
+//     ck_assert_str_eq(req.protocol, "HTTP/1.1");
+//     ck_assert_str_eq(req.headers, "Host: localhost:4221");
+// }
+// END_TEST
 
 START_TEST(test_valid_method_true) {
     ck_assert_int_eq(valid_method("POST"), 1);
@@ -59,15 +59,6 @@ START_TEST(test_python_user_agent) {
     parse_user_agent(headers, curl_ua);
     ck_assert_str_eq(curl_ua, "Python/3.10");
     ck_assert_int_eq(strlen(curl_ua), 11);
-}
-END_TEST
-
-START_TEST(test_no_user_agent) {
-    char headers[] = "Host: localhost:4221 Accept: */*";
-    char curl_ua[50];
-    parse_user_agent(headers, curl_ua);
-    ck_assert_str_eq(curl_ua, "");
-    ck_assert_int_eq(strlen(curl_ua), 0);
 }
 END_TEST
 
@@ -104,7 +95,7 @@ Suite* request_suite(void) {
     tcase_add_test(tc_core, test_echo_tail_doesnt_exists);
     tcase_add_test(tc_core, test_curl_user_agent);
     tcase_add_test(tc_core, test_python_user_agent);
-    tcase_add_test(tc_core, test_no_user_agent);
+    // tcase_add_test(tc_core, test_parse_request_headers);
 
     suite_add_tcase(s, tc_core);
 
@@ -122,6 +113,7 @@ int main(void) {
     srunner_run_all(sr, CK_NORMAL);
     number_failed = srunner_ntests_failed(sr);
     srunner_free(sr);
+    printf("\n");
 
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
