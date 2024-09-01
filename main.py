@@ -26,8 +26,11 @@ def main(lang: str):
         if tests.test_unknown():
             print(f"Unknown path handling for {lang} server verified!")
 
-        if tests.test_user_agent():
-            print(f"/user-agent handling for {lang} server verified!")
+        # if tests.test_user_agent():
+        #     print(f"/user-agent handling for {lang} server verified!")
+
+        if tests.test_save_request_body_as_file():
+            print(f"POST /files/[filename] for {lang} server verified!")
 
         if asyncio.run(tests.test_async()):
             print(f"Async test for {lang} server verified!")

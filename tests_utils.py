@@ -11,8 +11,18 @@ def random_string(len: int) -> str:
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=len))
 
 
-def curl_request(url: str, headers: dict[str, str] = None):
-    cmd = ["curl", "-i", url]
+def curl_request(url: str, headers: dict[str, str] = None, data: str = None):
+    cmd = ["curl", "-i"]
+
+    if headers:
+        for k, v in headers.items():
+            cmd += ["-H", f"{k}: {v}"]
+
+    if data:
+        cmd.append("--data")
+        cmd.append(data)
+
+    cmd.append(url)
 
     result = subprocess.run(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True

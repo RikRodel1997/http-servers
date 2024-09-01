@@ -7,6 +7,7 @@ def c():
             "gcc",
             "src/c/main.c",
             "src/c/src/request.c",
+            "src/c/src/serv_settings.c",
             "-o",
             "servers/c_server",
             "-lz",
@@ -22,11 +23,14 @@ def c():
     subprocess.run(
         [
             "./src/c/server.sh",
+            "test",
         ]
     )
     return subprocess.Popen(
         [
             "./servers/c_server",
+            "--directory",
+            "tmp",
         ]
     )
 

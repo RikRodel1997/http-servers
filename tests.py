@@ -1,5 +1,7 @@
 # Standard Library Imports
 import asyncio
+import glob
+import os
 
 # Third-party Library Imports
 import aiohttp
@@ -46,6 +48,29 @@ def test_user_agent() -> bool:
 
     assert_that(response).contains("Content-Length: 11\n\ncurl/7.81.0")
 
+    return True
+
+
+def test_save_request_body_as_file() -> bool:
+    file_string = random_string(3)
+    content = random_string(10)
+    file_path = f"tmp/file_{file_string}"
+    response = curl_request(
+        f"{BASE_URL}/files/file_{file_string}",
+        {
+            "Content-Type: ": "application/octet-stream",
+        },
+        content,
+    )
+
+    assert_that(response).contains("HTTP/1.1 201 Created")
+    assert_that(os.path.exists(file_path)).is_equal_to(True)
+    with open(file_path, "r") as file:
+        data = file.read().replace("\n", "")
+        assert_that(len(data)).is_equal_to(10)
+        assert_that(data).is_equal_to(content)
+
+    os.remove(file_path)
     return True
 
 

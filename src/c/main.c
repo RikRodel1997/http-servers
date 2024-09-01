@@ -82,6 +82,7 @@ int main(int argc, char* argv[]) {
 
         } else if (strncmp(path, "/files", 6) == 0 && strcmp(method, "GET") == 0) {
             char* file = strchr(path + 1, '/');
+
             if (file != NULL) {
                 char file_path[BUFFER_SIZE] = {0};
                 snprintf(file_path, BUFFER_SIZE, "%s%s", dir, file);
@@ -166,14 +167,12 @@ void get_dir(int argc, char* argv[], char* dir) {
     if (argc >= 3) {
         char* find_arg = "--directory";
         if (strncmp(argv[1], find_arg, strlen(find_arg)) == 0) {
-            printf("--directory argument passed: %s.\n", argv[2]);
             char* file_to_find = argv[2];
             if (strlen(file_to_find) > DIR_BUFF) {
                 printf("Server stopped due to requested file being too large");
                 exit(1);
             }
             if (access(file_to_find, F_OK) == 0) {
-                printf("%s does exist\n", file_to_find);
                 strcpy(dir, file_to_find);
             } else {
                 printf("%s doesn't exist\n", file_to_find);
