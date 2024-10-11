@@ -11,20 +11,23 @@ def c():
             "-o",
             "servers/c_server",
             "-lz",
-        ]
+        ],
+        check=True,
     )
     subprocess.run(
         [
             "chmod",
             "+x",
             "./src/c/server.sh",
-        ]
+        ],
+        check=True,
     )
     subprocess.run(
         [
             "./src/c/server.sh",
             "test",
-        ]
+        ],
+        check=True,
     )
     return subprocess.Popen(
         [

@@ -65,7 +65,8 @@ def test_save_request_body_as_file() -> bool:
 
     assert_that(response).contains("HTTP/1.1 201 Created")
     assert_that(os.path.exists(file_path)).is_equal_to(True)
-    with open(file_path, "r") as file:
+
+    with open(file_path, "r", encoding="utf-8") as file:
         data = file.read().replace("\n", "")
         assert_that(len(data)).is_equal_to(10)
         assert_that(data).is_equal_to(content)

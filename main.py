@@ -6,6 +6,8 @@ import asyncio
 import servers
 import tests
 
+CHECKMARK = "\u2714\ufe0f\u0020\u0020"
+
 
 def main(lang: str):
     lang_options = servers.languages.keys()
@@ -18,22 +20,22 @@ def main(lang: str):
 
     try:
         if tests.test_home():
-            print(f"/ path for {lang} server verified!")
+            print(f"{CHECKMARK} {lang}'s server / path test passed!")
 
         if tests.test_echo():
-            print(f"/echo with random string for {lang} server verified!")
+            print(f"{CHECKMARK} {lang}'s server /echo path test passed!")
 
         if tests.test_unknown():
-            print(f"Unknown path handling for {lang} server verified!")
+            print(f"{CHECKMARK} {lang}'s server unknown path handling test passed!")
 
-        # if tests.test_user_agent():
-        #     print(f"/user-agent handling for {lang} server verified!")
+        if tests.test_user_agent():
+            print(f"{CHECKMARK} {lang}'s server /user-agent test passed!")
 
         if tests.test_save_request_body_as_file():
-            print(f"POST /files/[filename] for {lang} server verified!")
+            print(f"{CHECKMARK} {lang}'s server POST /files/[filename] test passed!")
 
         if asyncio.run(tests.test_async()):
-            print(f"Async test for {lang} server verified!")
+            print(f"{CHECKMARK} {lang}'s server async test passed!")
 
     except Exception as e:
         print(f"Caught an exception while executing tests for {lang} server")
@@ -43,9 +45,7 @@ def main(lang: str):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Enter an argument to run servers and tests"
-    )
+    parser = argparse.ArgumentParser(description="Enter an argument to run servers and tests")
     parser.add_argument(
         "-l",
         "--lang",

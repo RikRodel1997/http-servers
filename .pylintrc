@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+# Disable the warning for missing docstrings
+disable=C0114,C0115,C0116,C0301
+
+[FORMAT]
+max-line-length=100

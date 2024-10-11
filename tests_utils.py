@@ -7,8 +7,8 @@ import subprocess
 import aiohttp
 
 
-def random_string(len: int) -> str:
-    return "".join(random.choices(string.ascii_uppercase + string.digits, k=len))
+def random_string(n: int) -> str:
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 
 def curl_request(url: str, headers: dict[str, str] = None, data: str = None):
@@ -25,7 +25,7 @@ def curl_request(url: str, headers: dict[str, str] = None, data: str = None):
     cmd.append(url)
 
     result = subprocess.run(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False
     )
     return result.stdout.strip()
 

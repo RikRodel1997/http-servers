@@ -175,7 +175,6 @@ void get_dir(int argc, char* argv[], char* dir) {
             if (access(file_to_find, F_OK) == 0) {
                 strcpy(dir, file_to_find);
             } else {
-                printf("%s doesn't exist\n", file_to_find);
                 dir[0] = '\0';
             }
         }
