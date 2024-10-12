@@ -3,3 +3,5 @@ servers/*
 tst*
 **check_tests*
 **/__pycache__
+tmp/*
+!tmp/*.md

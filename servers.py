@@ -18,20 +18,20 @@ def c():
         [
             "chmod",
             "+x",
-            "./src/c/server.sh",
+            "src/c/server.sh",
         ],
         check=True,
     )
     subprocess.run(
         [
-            "./src/c/server.sh",
+            "src/c/server.sh",
             "test",
         ],
         check=True,
     )
     return subprocess.Popen(
         [
-            "./servers/c_server",
+            "servers/c_server",
             "--directory",
             "tmp",
         ]

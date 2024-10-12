@@ -138,6 +138,11 @@ int main(int argc, char* argv[]) {
                 size_t content_length = bytes_received - (content - req_buff_copy);
 
                 FILE* file_ptr = fopen(file_path, "w");
+                if (file_ptr == NULL) {
+                    perror("Error opening file\n");
+                    strncpy(res, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
+                }
+
                 fwrite(content, 1, content_length, file_ptr);
                 fclose(file_ptr);
                 strncpy(res, "HTTP/1.1 201 Created\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);

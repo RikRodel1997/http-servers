@@ -6,8 +6,6 @@ import asyncio
 import servers
 import tests
 
-CHECKMARK = "\u2714\ufe0f\u0020\u0020"
-
 
 def main(lang: str):
     lang_options = servers.languages.keys()
@@ -17,30 +15,22 @@ def main(lang: str):
         return
 
     server = servers.languages[lang.lower()]()
+    all_tests = tests.available
 
     try:
-        if tests.test_home():
-            print(f"{CHECKMARK} {lang}'s server / path test passed!")
 
-        if tests.test_echo():
-            print(f"{CHECKMARK} {lang}'s server /echo path test passed!")
-
-        if tests.test_unknown():
-            print(f"{CHECKMARK} {lang}'s server unknown path handling test passed!")
-
-        if tests.test_user_agent():
-            print(f"{CHECKMARK} {lang}'s server /user-agent test passed!")
-
-        if tests.test_save_request_body_as_file():
-            print(f"{CHECKMARK} {lang}'s server POST /files/[filename] test passed!")
-
-        if asyncio.run(tests.test_async()):
-            print(f"{CHECKMARK} {lang}'s server async test passed!")
+        print(f"\nRunning tests for {lang.capitalize()} server")
+        for test in all_tests.items():
+            if "async" in test[0]:
+                asyncio.run(test[1]())
+            else:
+                test[1]()
 
     except Exception as e:
-        print(f"Caught an exception while executing tests for {lang} server")
+        print(f"Caught an exception while executing tests for {lang.capitalize()} server")
         print(e)
     finally:
+        print(f"Terminating {lang.capitalize()} server\n")
         server.terminate()
 
 
