@@ -14,7 +14,9 @@ def random_string(n: int) -> str:
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
 
 
-def curl_request(url: str, headers: dict[str, str] = None, data: str = None):
+def curl_request(
+    url: str, headers: dict[str, str] = None, data: str = None, show_request: bool = False
+) -> str:
     cmd = ["curl", "-i"]
 
     if headers:
@@ -26,6 +28,9 @@ def curl_request(url: str, headers: dict[str, str] = None, data: str = None):
         cmd.append(data)
 
     cmd.append(url)
+
+    if show_request:
+        print(f"Request: {' '.join(cmd)}")
 
     result = subprocess.run(
         cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False

@@ -35,8 +35,6 @@ int main(int argc, char* argv[]) {
         }
 
         char req_buff[BUFFER_SIZE] = {0};
-        char req_buff_copy[BUFFER_SIZE] = {0};
-        char req_buff_copy2[BUFFER_SIZE] = {0};
 
         ssize_t bytes_received = recv(accept_fd, req_buff, BUFFER_SIZE, 0);
         if (bytes_received < 0) {
@@ -44,10 +42,8 @@ int main(int argc, char* argv[]) {
             close(accept_fd);
             continue;
         }
-        req_buff[bytes_received] = '\0';
 
-        strncpy(req_buff_copy, req_buff, bytes_received);
-        strncpy(req_buff_copy2, req_buff, bytes_received);
+        req_buff[bytes_received] = '\0';
 
         char res[BUFFER_SIZE + HTTP_HEADER_SIZE] = {0};
         char response_buff[BUFFER_SIZE + HTTP_HEADER_SIZE] = {0};
@@ -57,7 +53,7 @@ int main(int argc, char* argv[]) {
         char* method = req.method;
         char* path = req.path;
         char* headers = req.headers;
-        // char* body = req.body; //TODO
+        char* body = req.body;
 
         if (strcmp(path, "/") == 0) {
             strncpy(res, "HTTP/1.1 200 OK\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
@@ -132,18 +128,17 @@ int main(int argc, char* argv[]) {
             char file_path[BUFFER_SIZE];
             snprintf(file_path, sizeof(file_path), "%s/%s", dir, file_name);
 
-            char* content = strstr(req_buff_copy, "\r\n\r\n");
-            if (content != NULL) {
-                content += 4;   // Skip \r\n\r\n
-                size_t content_length = bytes_received - (content - req_buff_copy);
+            if (body != NULL) {
+                size_t body_len = strlen(body);
 
-                FILE* file_ptr = fopen(file_path, "w");
+                FILE* file_ptr = fopen(strcat(file_path, ".txt"), "w");
                 if (file_ptr == NULL) {
                     perror("Error opening file\n");
-                    strncpy(res, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
+                    strncpy(res, "HTTP/1.1 500 Internal Server Error\r\nContent-Length: 0\r\n\r\n",
+                            BUFFER_SIZE + HTTP_HEADER_SIZE);
                 }
 
-                fwrite(content, 1, content_length, file_ptr);
+                fwrite(body, 1, body_len, file_ptr);
                 fclose(file_ptr);
                 strncpy(res, "HTTP/1.1 201 Created\r\n\r\n", BUFFER_SIZE + HTTP_HEADER_SIZE);
             } else {

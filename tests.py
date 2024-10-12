@@ -81,7 +81,7 @@ def test_user_agent() -> bool:
 def test_post_files_filename() -> bool:
     file_string = utils.random_string(3)
     content = utils.random_string(10)
-    file_path = f"tmp/file_{file_string}"
+    file_path = f"tmp/file_{file_string}.txt"
     response = utils.curl_request(
         f"{BASE_URL}/files/file_{file_string}",
         {
@@ -106,7 +106,7 @@ def test_post_files_filename() -> bool:
             assert_that(data).is_equal_to(content)
         except AssertionError as e:
             utils.format_assert_msg("POST /files/[filename]", "fail")
-            utils.format_assert_exception(f"Data: {data}")
+            utils.format_assert_exception(f"Data: {data} | Data Len: {len(data)}")
             utils.format_assert_exception(f"Exception: {e}")
             return False
 

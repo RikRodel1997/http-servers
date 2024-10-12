@@ -6,7 +6,9 @@ request parse_request(char* received_request) {
     char path[PATH_LENGTH];
     char protocol[PROTOCOL_LENGTH];
     char headers[HEADER_LENGTH];
+    char body[BODY_LENGTH];
     headers[0] = '\0';
+    body[0] = '\0';
 
     char* token;
     int iteration = 0;
@@ -36,6 +38,11 @@ request parse_request(char* received_request) {
                 strncpy(req.path, path, PATH_LENGTH - 1);
                 req.path[PATH_LENGTH - 1] = '\0';
             }
+        } else if (iteration == 7) {
+            strncpy(body, token, BODY_LENGTH - 1);
+            body[BODY_LENGTH - 1] = '\0';
+            strncpy(req.body, body, BODY_LENGTH - 1);
+            req.body[BODY_LENGTH - 1] = '\0';
         } else {
             strcat(headers, token);
             strcat(headers, " ");

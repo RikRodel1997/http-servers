@@ -8,7 +8,7 @@ SpaceAfterCStyleCast: true
 UseTab: Never
 # if (x) doStuff()  is not allowed, bad style
 AllowShortIfStatementsOnASingleLine: false
-# 
+#
 AlignTrailingComments: true
 SpacesBeforeTrailingComments: 3
 #  #define SHORT_NAME       42

@@ -9,12 +9,14 @@
 #define PATH_LENGTH     256    // Adjust based on expected maximum path length
 #define HEADER_LENGTH   8190   // As defined by apache
 #define PROTOCOL_LENGTH 9      // 8 characters for HTTP/1.1 +1 for null terminator
+#define BODY_LENGTH     8190   // As defined by apache
 
 typedef struct {
     char method[METHOD_LENGTH];
     char path[PATH_LENGTH];
     char protocol[PROTOCOL_LENGTH];
     char headers[HEADER_LENGTH];
+    char body[BODY_LENGTH];
 } request;
 
 request parse_request(char* received_request);
