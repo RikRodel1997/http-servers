@@ -5,9 +5,9 @@ def c():
     subprocess.run(
         [
             "gcc",
-            "src/c/main.c",
-            "src/c/src/request.c",
-            "src/c/src/serv_settings.c",
+            "lib/c/main.c",
+            "lib/c/src/request.c",
+            "lib/c/src/serv_settings.c",
             "-o",
             "servers/c_server",
             "-lz",
@@ -18,13 +18,13 @@ def c():
         [
             "chmod",
             "+x",
-            "src/c/server.sh",
+            "lib/c/server.sh",
         ],
         check=True,
     )
     subprocess.run(
         [
-            "src/c/server.sh",
+            "lib/c/server.sh",
             "test",
         ],
         check=True,

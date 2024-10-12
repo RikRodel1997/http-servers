@@ -115,6 +115,45 @@ def test_post_files_filename() -> bool:
     return True
 
 
+def test_get_files_filename() -> bool:
+    file_string = utils.random_string(3)
+    content = utils.random_string(10)
+    file_path = f"tmp/file_{file_string}.txt"
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(content)
+
+    response = utils.curl_request(
+        f"{BASE_URL}/files/file_{file_string}",
+        {
+            "Content-Type: ": "application/octet-stream",
+        },
+    )
+
+    try:
+        assert_that(response).contains("HTTP/1.1 201 Created")
+    except AssertionError as e:
+        utils.format_assert_msg("POST /files/[filename]", "fail")
+        utils.format_assert_exception(f"Response: {response}")
+        utils.format_assert_exception(f"Exception: {e}")
+        return False
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        data = file.read().replace("\n", "")
+        try:
+            assert_that(os.path.exists(file_path)).is_equal_to(True)
+            assert_that(len(data)).is_equal_to(10)
+            assert_that(data).is_equal_to(content)
+        except AssertionError as e:
+            utils.format_assert_msg("POST /files/[filename]", "fail")
+            utils.format_assert_exception(f"Data: {data} | Data Len: {len(data)}")
+            utils.format_assert_exception(f"Exception: {e}")
+            return False
+
+    os.remove(file_path)
+    utils.format_assert_msg("POST /files/[filename]", "pass")
+    return True
+
+
 async def test_async() -> bool:
     string_data = utils.random_string(6)
     async with aiohttp.ClientSession(skip_auto_headers=["Accept-Encoding"]) as session:
